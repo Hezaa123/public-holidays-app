@@ -20,7 +20,7 @@ export const CountrySelect = () => {
 
 return (
   <>
-    <label>UK Bank Holidays</label>
+    <h1>UK Bank Holidays</h1>
     <select name="selectedCountry" value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)}>
       {Object.entries(data).map(([division]) => {
         return (
@@ -28,7 +28,7 @@ return (
         )
       })}
     </select>
-    <h1>{selectedCountry}</h1>
+    <h2>{selectedCountry}</h2>
     {data[selectedCountry].events.map((event: { title: string; date: string} ) => {
       return (
         <div key={selectedCountry + event.date}>
