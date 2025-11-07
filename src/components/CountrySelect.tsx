@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { BankHolidayLoader } from '../loaders/BankHolidayLoader';
 
 import '../styles/CountrySelect.css';
 
@@ -13,10 +14,7 @@ interface HolidayData {
 export const CountrySelect = () => {
 	const { isPending, error, data } = useQuery<Record<string, { division?: string; events: HolidayData[] }>>({
 		queryKey: ['repoData'],
-		queryFn: () =>
-			fetch('https://www.gov.uk/bank-holidays.json').then((res) =>
-				res.json(),
-			),
+		queryFn: BankHolidayLoader,
 	});
 
 	const [selectedCountry, setSelectedCountry] = useState('england-and-wales');
