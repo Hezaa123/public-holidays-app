@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import '../styles/CountrySelect.css';
+
+interface HolidayData {
+	title: string;
+	date: string;
+	notes: string;
+	bunting: boolean;
+}
+
 export const CountrySelect = () => {
-	const { isPending, error, data } = useQuery({
+	const { isPending, error, data } = useQuery<Record<string, { division?: string; events: HolidayData[] }>>({
 		queryKey: ['repoData'],
 		queryFn: () =>
 			fetch('https://www.gov.uk/bank-holidays.json').then((res) =>
@@ -17,6 +26,8 @@ export const CountrySelect = () => {
 
 	if (error) return 'An error has occurred: ' + error.message;
 
+	if (!data) return 'No data available';
+
 	const availableYears = () => {
 		const yearsSet = new Set<number>();
 
@@ -28,7 +39,11 @@ export const CountrySelect = () => {
 		});
 
 		return Array.from(yearsSet).sort((a, b) => b - a);
-	};
+	}
+
+	const filteredHolidays: HolidayData[] = (data[selectedCountry]?.events || []).filter((holiday) => {
+		return new Date(holiday.date).getFullYear().toString() === selectedYear;
+	});
 
 	return (
 		<div>
@@ -56,10 +71,10 @@ export const CountrySelect = () => {
 
 			<h2>{selectedCountry}</h2>
 
-			{data[selectedCountry].events.map((event: { title: string; date: string }) => {
+			{filteredHolidays.map((event: { title: string; date: string }) => {
 				return (
 					<div key={selectedCountry + event.date}>
-						<ul>
+						<ul className='listItems'>
 							<li key={event.date}>
 								{event.title} - {event.date}
 							</li>
