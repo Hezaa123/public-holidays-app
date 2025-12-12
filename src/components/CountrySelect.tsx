@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch } from '../redux/store/store';
+import { setCountry, setYear } from '../redux/slices/bankHolidaySlice';
+import { selectCountry, selectYear } from '../selectors';
+
 import { BankHolidayLoader } from '../loaders/BankHolidayLoader';
 
 import '../styles/CountrySelect.css';
@@ -17,8 +23,9 @@ export const CountrySelect = () => {
 		queryFn: BankHolidayLoader,
 	});
 
-	const [selectedCountry, setSelectedCountry] = useState('england-and-wales');
-	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+	const dispatch = useDispatch<AppDispatch>();
+	const country = useSelector(selectCountry);
+	const year = useSelector(selectYear);
 
 	if (isPending) return 'Loading...';
 
@@ -39,8 +46,8 @@ export const CountrySelect = () => {
 		return Array.from(yearsSet).sort((a, b) => b - a);
 	}
 
-	const filteredHolidays: HolidayData[] = (data[selectedCountry]?.events || []).filter((holiday) => {
-		return new Date(holiday.date).getFullYear().toString() === selectedYear;
+	const filteredHolidays: HolidayData[] = (data[country]?.events || []).filter((holiday) => {
+		return new Date(holiday.date).getFullYear().toString() === year;
 	});
 
 	return (
@@ -48,7 +55,7 @@ export const CountrySelect = () => {
 			<h1>UK Bank Holidays</h1>
 
 			<label>Selected Country:
-				<select name="selectedCountry" value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)}>
+				<select name="selectedCountry" value={country} onChange={(e) => dispatch(setCountry(e.target.value))}>
 					{Object.entries(data).map(([division]) => {
 						return (
 							<option key={division} value={division}>{division.replace(/-/g, ' ')}</option>
@@ -58,7 +65,7 @@ export const CountrySelect = () => {
 			</label>
 
 			<label>Holiday Year:
-				<select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+				<select value={year} onChange={(e) => dispatch(setYear(e.target.value))}>
 					{availableYears().map(year => (
 						<option key={year} value={year}>
 							{year}
@@ -67,11 +74,11 @@ export const CountrySelect = () => {
 				</select>
 			</label>
 
-			<h2>{selectedCountry}</h2>
+			<h2>{country}</h2>
 
 			{filteredHolidays.map((event: { title: string; date: string }) => {
 				return (
-					<div key={selectedCountry + event.date}>
+					<div key={year + event.date}>
 						<ul className='listItems'>
 							<li key={event.date}>
 								{event.title} - {event.date}
